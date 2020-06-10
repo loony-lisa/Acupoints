@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<title>acupoint</title>
+<style>
+.leftBlock {
+  float:left;
+  width:auto;
+}
+.smallBlock {
+  margin:10px 20px;
+  font-size: 1rem;
+  width: 6em;
+}
+
+</style>
+    </head>
+<script type="text/javascript">
+    var testNums = Array()
+    for(var i=0;i<120;i++){
+      testNums.push(i)
+    }
+
+    var maxQuesCnt = testNums.length;
+    var cnt = 0;
+    var canvasWidth = 900;
+    var canvasHeight = 800;
+    var blockWidth = 70;
+    var blockHeight = 45;
+    var topMargin = 50;
+    var leftMargin = 100;
+    var blockGapX = 78;
+    var blockGapY = 60;
+    var StarTime = new Date().getTime();
+    var fontSize = 20;
+
+    for(var i=0;i<testNums.length+10;i++){
+	      var rdm = Math.floor(Math.random()*testNums.length)
+	      testNums.push(testNums[rdm])
+	      testNums.splice(rdm,1)
+    }
+
+    // Table headers
+    var name1=new Array("井","荥","输","经","合","原","络","俞","募","郄")
+    var name2=new Array("肺","大肠","胃","脾","心","小肠","膀胱","肾","心包","三焦","胆","肝")
+
+    // Table values
+    var pointNames = new Array();
+
+    pointNames[0] = new Array("少商","鱼际","太渊","经渠","尺泽","太渊","列缺","肺俞","中府","孔最");
+    pointNames[1] = new Array("商阳","二间","三间","阳溪","曲池","合谷","偏历","大肠俞","天枢","温溜")
+    pointNames[2] = new Array("厉兑","内庭","陷谷","解溪","足三里","冲阳","丰隆","胃俞","中脘","梁丘")
+    pointNames[3] = new Array("隐白",	"大都","太白","商丘","阴陵泉","太白","公孙","脾俞","章门","地机")
+    pointNames[4] = new Array("少冲","少府","神门","灵道","少海","神门","通里","心俞","巨阙","阴郄")
+    pointNames[5] = new Array("少泽","前谷","后溪","阳谷","小海","腕骨","支正","小肠俞","关元","养老")
+    pointNames[6] = new Array("至阴","足通谷","束骨","昆仑","委中","京骨","飞扬","膀胱俞","中极","金门")
+    pointNames[7] = new Array("涌泉","然谷","太溪","复溜","阴谷","太溪","大钟","肾俞","京门","水泉")
+    pointNames[8] = new Array("中冲","劳宫","大陵","间使","曲泽","大陵","内关","厥阴俞","膻中","郄门")
+    pointNames[9] = new Array("关冲","液门","中诸","支沟","天井","阳池","外关","三焦俞","石门","会宗")
+    pointNames[10] = new Array("足窍阴","侠溪","足临泣","阳辅","阳陵泉","丘墟","光明","胆俞","日月","外丘")
+    pointNames[11] = new Array("大敦","行间","太冲","中封","曲泉","太冲","蠡沟","肝俞","期门","中都")
+
+    // Interval
+    var referId;
+
+    // Shared variables
+    var canv, //canvas
+    c,        //context
+    eleArr = [];
+
+    function getEventPosition(ev){
+      var x, y;
+      if (ev.layerX || ev.layerX == 0) {
+        x = ev.layerX;
+        y = ev.layerY;
+      } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+        x = ev.offsetX;
+        y = ev.offsetY;
+      }
+      return {x: x, y: y};
+    }
+
+    function draw() {
+      c.font = "1.5rem bold 黑体";
+      c.fillStyle = "#000";
+      c.textAlign = "left";
+      c.textBaseline = "middle";
+      // Draw table headers
+      for (i = 0; i < 10; i++){
+          c.fillText(name1[i], leftMargin + i*blockGapX , topMargin-30);
+      }
+
+      for (i = 0; i < 12; i++){
+          c.fillText(name2[i], leftMargin-90, topMargin + 20 + i*blockGapY);
+      }
+
+      // Draw table contents
+      for (var i = 0; i < 12; i++){
+        for (var j = 0; j < 10; j++) {
+          var bl = new Rect({ x: leftMargin + j * blockGapX, y: topMargin + i * blockGapY,
+            width: blockWidth, height: blockHeight, text:pointNames[i][j], style: "gray"});
+          bl.addClick(bl.clickResponse);
+        }
+      }
+    }
+
+    window.onload = function() {
+      canv = document.getElementById('myCanvas');
+      canv.width = canvasWidth;
+      canv.height = canvasHeight;
+      c = canv.getContext("2d");
+
+      canv.addEventListener("click", function(e){
+        p = getEventPosition(e);
+        mx = p.x;
+        my = p.y;
+
+        var cur = testNums[cnt-1];
+        console.log(cur);
+        if (mx > eleArr[cur].x && mx < eleArr[cur].x + eleArr[cur].width && my > eleArr[cur].y && my < eleArr[cur].y + eleArr[cur].height) {
+              eleArr[cur].clickFun();
+        }
+      }, false);
+      draw();
+    }
+
+    function Rect({x, y, width, height, text, style}){
+      this.x = x
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.text = text;
+      this.style = style;
+      this.state = 0;
+
+      this.clickResponse = function() {
+        c.font = "20px bold 黑体";
+        c.fillStyle = "#000";
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+
+        if (cnt > 0 && cnt < maxQuesCnt){
+          if (this.state == 0){
+            // Write text
+            c.fillText(this.text, this.x + Math.floor(this.width/2), this.y + Math.floor(this.height/2));
+            this.state = 1;
+          }
+          else if(this.state == 1){
+            // Restore with gray block
+            c.fillStyle = "gray";
+            c.fillRect(this.x, this.y, this.width, this.height);
+            this.state = 0;
+            nextBlock('myCanvas')
+          }
+        } else {
+          return
+        }
+      }
+
+      //添加到事件数组中
+      this.add = function() {
+        eleArr.push(this);
+      }
+
+      //画矩形
+      this.draw = function() {
+        c.fillStyle = this.style;
+        c.fillRect(this.x, this.y, this.width, this.height);
+      }
+
+      this.addClick = function(fun) {
+        this.add();
+        //事件回调函数
+        this.clickFun = fun;
+      }
+      this.draw();
+    }
+
+    function clearCanvas()
+    {
+        canv.height=canv.height;
+    }
+
+    function nextBlock(id)
+    {
+      // Stop
+      if (cnt >= maxQuesCnt){
+        var NowTime = new Date().getTime();
+        var totalTime = parseInt((NowTime - StarTime) / 1000);
+        document.getElementById("questionNum").innerHTML = "本轮练习结束，总用时: " + totalTime + "秒";
+        document.getElementById("clock").innerHTML = "";
+        clearInterval(referId)
+        return
+      }
+
+      var temp = cnt + 1;
+      var i = Math.floor(testNums[cnt] / 10);
+      var j = testNums[cnt] % 10;
+
+      document.getElementById("questionNum").innerHTML = "第" + temp + "题 " + name1[j] + " " + name2[i];
+      // Draw the current yellow block
+      c.fillStyle="yellow";
+      c.fillRect(leftMargin + j * blockGapX, topMargin + i * blockGapY, blockWidth, blockHeight);
+      cnt++;
+    }
+
+    function NotRetain() {
+        var NowTime = new Date().getTime();
+        document.getElementById("clock").innerHTML = "计时:" + parseInt((NowTime - StarTime) / 1000)  + "秒"
+    }
+
+    function newRound(id){
+      // Reset counter
+      cnt = 0;
+      // New Interval
+      referId = setInterval(function() {
+        NotRetain();
+      }, 500)
+
+      clearCanvas()
+      StarTime = new Date().getTime();
+      document.getElementById("questionNum").innerHTML = "准备";
+      for(var i=0;i<testNums.length+10;i++){
+          var rdm = Math.floor(Math.random()*testNums.length)
+          testNums.push(testNums[rdm])
+          testNums.splice(rdm,1)
+      }
+      draw(id)
+      nextBlock(id)
+    }
+
+    function submitAns(){
+      if (cnt == 0){
+        return
+      }
+      nextBlock('myCanvas');
+    }
+
+    </script>
+
+    <body>
+      <h2>特定穴记忆练习</h2>
+        <div>
+            <p id="clock" class=smallBlock></p>
+            <button class="smallBlock" type="button" onclick="newRound('myCanvas')">重新开始</button>
+            <p class=smallBlock id="questionNum">准备</p>
+        </div>
+
+        <canvas id="myCanvas" style="border:3px double #996633;"></canvas>
+
+    </body>
+</html>
